@@ -72,7 +72,6 @@ void start(std::string_view /*appname*/, gsl::span<std::string> args)
         // Receive the HTTP response
         http::read(stream, buffer, res);
         try {
-            fmt::print("status {}\n", res.result_int());
             if (res.result_int() >= 300 && res.result_int() < 400) {
                 const auto& location = res.at(http::field::location);
                 std::regex  uri_regex{"([a-z]+)://([^:/]+)(:\\d+)?(/.*)"};
@@ -92,7 +91,9 @@ void start(std::string_view /*appname*/, gsl::span<std::string> args)
                 // fmt::print("{} : {}\n", host, port);
             }
         } catch (std::exception const& ex) {
-            fmt::print(stderr, "{}\n", res);
+            fmt::print(stderr,
+                       "Received exception {} in processing resopnse\n{}\n",
+                       ex.what(), res);
             std::terminate();
         }
         received_ok = true;
