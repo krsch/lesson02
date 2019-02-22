@@ -1,0 +1,17 @@
+---
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+BasedOnStyle:  LLVM
+BreakBeforeInheritanceComma: true
+BreakBeforeBraces: Linux
+BreakConstructorInitializersBeforeComma: false
+BreakConstructorInitializers: BeforeColon
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+IndentWidth:     4
+PointerAlignment: Left
+Standard:        Cpp11
+TabWidth:        8
+UseTab:          Never
+...
+
