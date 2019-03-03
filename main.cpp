@@ -13,6 +13,7 @@
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 #include <regex>
+#include <nlohmann/json.hpp>
 
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 namespace http = boost::beast::http;    // from <boost/beast/http.hpp>
@@ -34,7 +35,7 @@ void start(std::string_view /*appname*/, gsl::span<std::string> args)
 
         ssl::context ctx(ssl::context::tlsv12_client);
         // Verify the remote server's certificate
-        ctx.set_verify_mode(ssl::verify_none);
+        // ctx.set_verify_mode(ssl::verify_peer);
         ssl::stream<tcp::socket> stream(ioc, ctx);
 
         if (!SSL_set_tlsext_host_name(stream.native_handle(), host.c_str())) {
@@ -56,8 +57,7 @@ void start(std::string_view /*appname*/, gsl::span<std::string> args)
         // Set up an HTTP GET request message
         http::request<http::string_body> req{http::verb::get, target, 11};
         req.set(http::field::host, host);
-        req.set(http::field::accept,
-                "text/bibliography; style=ieee; locale=en-US");
+        req.set(http::field::accept, "application/citeproc+json");
         req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
 
         // Send the HTTP request to the remote host
@@ -99,8 +99,6 @@ void start(std::string_view /*appname*/, gsl::span<std::string> args)
         received_ok = true;
 
         // Write the message to standard out
-        // fmt::print("{}\n", req);
-        // fmt::print("{}\n", res);
         if (res.result_int() >= 200 && res.result_int() < 300)
             doi_text = res.body();
 
@@ -115,5 +113,6 @@ void start(std::string_view /*appname*/, gsl::span<std::string> args)
         if (ec)
             throw boost::system::system_error{ec};
     }
-    fmt::print("{}\n", doi_text);
+    nlohmann::json result = nlohmann::json::parse(doi_text);
+    fmt::print("{}\n", result["title"]);
 }
